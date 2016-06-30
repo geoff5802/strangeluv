@@ -11,7 +11,7 @@ const { __DEV__, __PROD__, __TEST__ } = Config.globals;
 Debug('Create configuration.');
 const webpackConfig = module.exports = {
     name: 'client',
-    target: 'web',
+    target: 'node',
     devtool: Config.compiler_devtool,
     resolve: {
         root: paths.client(),
@@ -33,19 +33,23 @@ const APP_ENTRY_PATHS = [
 ];
 
 webpackConfig.entry = {
+    // Must specify as an array.  See webpack/webpack#300
+    app: [paths.client('main.server.js')]
+}; /*{
     app: __DEV__
     ? APP_ENTRY_PATHS.concat(`webpack-hot-middleware/client?path=${Config.compiler_public_path}__webpack_hmr`)
     : APP_ENTRY_PATHS,
     vendor: Config.compiler_vendor
-};
+};*/
 
 // ------------------------------------
 // Bundle Output
 // ------------------------------------
 webpackConfig.output = {
-    filename: `[name].[${Config.compiler_hash_type}].js`,
-    path: paths.dist(),
-    publicPath: Config.compiler_public_path
+    filename: 'index.js',
+    path: paths.dist('server'),
+    publicPath: Config.compiler_public_path,
+    libraryTarget: 'commonjs'
 };
 
 // ------------------------------------
@@ -53,7 +57,7 @@ webpackConfig.output = {
 // ------------------------------------
 webpackConfig.plugins = [
     new Webpack.DefinePlugin(Config.globals),
-    new HtmlWebpackPlugin({
+    /*new HtmlWebpackPlugin({
         template: paths.client('index.html'),
         hash: false,
         favicon: paths.client('static/favicon.ico'),
@@ -62,10 +66,10 @@ webpackConfig.plugins = [
         minify: {
             collapseWhitespace: true
         }
-    })
+    })*/
 ];
 
-if (__DEV__) {
+/*if (__DEV__) {
     Debug('Enable plugins for live development (HMR, NoErrors).');
     webpackConfig.plugins.push(
     new Webpack.HotModuleReplacementPlugin(),
@@ -86,8 +90,10 @@ else if (__PROD__) {
     })
   );
 }
+*/
 
 // Don't split bundles during testing, since we only want import one bundle
+/*
 if (!__TEST__) {
     webpackConfig.plugins.push(
     new Webpack.optimize.CommonsChunkPlugin({
@@ -95,6 +101,7 @@ if (!__TEST__) {
     })
   );
 }
+*/
 
 // ------------------------------------
 // Pre-Loaders

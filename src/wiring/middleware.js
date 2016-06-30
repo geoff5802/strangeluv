@@ -1,8 +1,10 @@
 const Thunk = require('redux-thunk').default;
 const RouterMiddleware = require('react-router-redux').routerMiddleware;
-const History = require('./history');
+
+// No history for server-side
+// const History = require('./history');
 
 module.exports = [
     Thunk,
-    RouterMiddleware(History)
+    RouterMiddleware(/* History */)
 ];

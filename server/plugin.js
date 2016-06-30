@@ -3,10 +3,36 @@ const Webpack = require('webpack');
 const WebpackConfig = require('../config/webpack.config');
 const Config = require('../config/main');
 const Package = require('../package.json');
+const ReactDOM = require('react-dom/server');
+const ReactRouter = require('react-router');
+
+// Compile with `npm run compile` using the current messed-up webpack config
+const App = require('../dist/server');
+
+const internals = {};
 
 // The app as a plugin
 
 module.exports = (server, options, next) => {
+
+    // To hit this route make sure to comment-out the
+    // history-related onRequest extension in strangeluv-core
+    server.route({
+        path: '/counter',
+        method: 'get',
+        handler: (request, reply) => {
+
+            ReactRouter.match({
+                routes: App.routes,
+                location: request.url
+            }, (err, redirect, renderProps) => {
+
+                const AppContainer = App.create(renderProps);
+
+                reply(err || ReactDOM.renderToString(AppContainer));
+            });
+        }
+    });
 
     server.register({
         register: StrangeluvCore,
